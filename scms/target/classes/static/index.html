@@ -1,0 +1,711 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Student CMS</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <style>
+    /* ── RESET & BASE ─────────────────────────────────────────── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:       #f5f4f0;
+      --surface:  #ffffff;
+      --border:   #e2e0d8;
+      --ink:      #1c1a16;
+      --ink2:     #6b6760;
+      --ink3:     #9e9b97;
+      --accent:   #2d6a4f;
+      --accent2:  #40916c;
+      --danger:   #c1121f;
+      --warn:     #e9c46a;
+      --radius:   10px;
+      --shadow:   0 1px 4px rgba(0,0,0,.07), 0 4px 16px rgba(0,0,0,.05);
+    }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--bg);
+      color: var(--ink);
+      min-height: 100vh;
+      font-size: 15px;
+      line-height: 1.5;
+    }
+
+    /* ── UTILITIES ───────────────────────────────────────────── */
+    .hidden { display: none !important; }
+
+    /* ── AUTH SCREEN ─────────────────────────────────────────── */
+    #authScreen {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: var(--bg);
+    }
+
+    .auth-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 40px 36px;
+      width: 100%;
+      max-width: 400px;
+      box-shadow: var(--shadow);
+    }
+
+    .auth-brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 28px;
+    }
+    .auth-brand .dot {
+      width: 32px; height: 32px;
+      background: var(--accent);
+      border-radius: 8px;
+      display: flex; align-items: center; justify-content: center;
+      color: #fff; font-size: 16px;
+    }
+    .auth-brand span { font-weight: 700; font-size: 1.05rem; }
+
+    .auth-title { font-size: 1.4rem; font-weight: 700; margin-bottom: 4px; }
+    .auth-sub   { color: var(--ink2); font-size: .88rem; margin-bottom: 24px; }
+
+    /* ── FORM ELEMENTS ───────────────────────────────────────── */
+    .field { margin-bottom: 14px; }
+    label  { display: block; font-size: .82rem; font-weight: 600; color: var(--ink2); margin-bottom: 5px; text-transform: uppercase; letter-spacing: .04em; }
+
+    input, select {
+      width: 100%;
+      padding: 10px 13px;
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius);
+      font-family: inherit;
+      font-size: .9rem;
+      background: var(--surface);
+      color: var(--ink);
+      outline: none;
+      transition: border-color .18s;
+    }
+    input:focus, select:focus { border-color: var(--accent); }
+
+    /* ── BUTTONS ─────────────────────────────────────────────── */
+    .btn {
+      display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+      padding: 10px 18px;
+      border: none; border-radius: var(--radius);
+      font-family: inherit; font-size: .88rem; font-weight: 600;
+      cursor: pointer;
+      transition: opacity .15s, transform .1s;
+    }
+    .btn:hover { opacity: .86; transform: translateY(-1px); }
+    .btn:active { transform: translateY(0); }
+    .btn-primary { background: var(--accent); color: #fff; }
+    .btn-ghost   { background: transparent; color: var(--accent); border: 1.5px solid var(--accent); }
+    .btn-danger  { background: var(--danger); color: #fff; padding: 6px 12px; font-size: .8rem; }
+    .btn-full    { width: 100%; margin-top: 6px; }
+    .btn-link    { background: none; color: var(--accent); text-decoration: underline; font-size: .88rem; font-weight: 500; padding: 0; }
+
+    .switch-link { text-align: center; margin-top: 18px; font-size: .85rem; color: var(--ink2); }
+
+    /* ── APP LAYOUT ──────────────────────────────────────────── */
+    #appScreen { display: flex; min-height: 100vh; }
+
+    /* Sidebar */
+    .sidebar {
+      width: 210px; flex-shrink: 0;
+      background: var(--ink);
+      color: #fff;
+      display: flex; flex-direction: column;
+      padding: 24px 0;
+    }
+    .sidebar-brand {
+      padding: 0 20px 24px;
+      border-bottom: 1px solid rgba(255,255,255,.08);
+      display: flex; align-items: center; gap: 9px;
+    }
+    .sidebar-brand .dot { width:28px;height:28px;background:var(--accent);border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:14px; }
+    .sidebar-brand span { font-weight: 700; font-size: .95rem; }
+
+    .nav-section { padding: 16px 12px 6px; font-size: .7rem; font-weight: 700; text-transform: uppercase; letter-spacing: .1em; color: rgba(255,255,255,.3); }
+
+    .nav-item {
+      margin: 1px 8px;
+      padding: 9px 12px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: .88rem;
+      display: flex; align-items: center; gap: 9px;
+      transition: background .15s;
+      color: rgba(255,255,255,.65);
+    }
+    .nav-item:hover   { background: rgba(255,255,255,.06); color: #fff; }
+    .nav-item.active  { background: var(--accent); color: #fff; }
+    .nav-item .icon   { font-size: 15px; flex-shrink: 0; }
+
+    .sidebar-footer { margin-top: auto; padding: 16px 20px 0; border-top: 1px solid rgba(255,255,255,.08); }
+    .sidebar-user   { font-size: .82rem; color: rgba(255,255,255,.4); margin-bottom: 8px; }
+    .sidebar-user strong { color: rgba(255,255,255,.75); display: block; }
+
+    /* Main content */
+    .main { flex: 1; padding: 32px; overflow-y: auto; max-width: 900px; }
+
+    .page { display: none; }
+    .page.active { display: block; }
+
+    .page-header { margin-bottom: 24px; }
+    .page-header h2 { font-size: 1.5rem; font-weight: 700; }
+    .page-header p  { color: var(--ink2); font-size: .9rem; margin-top: 3px; }
+
+    /* ── CARDS ───────────────────────────────────────────────── */
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 24px;
+      margin-bottom: 20px;
+    }
+    .card-title { font-size: .9rem; font-weight: 700; margin-bottom: 16px; color: var(--ink2); text-transform: uppercase; letter-spacing: .05em; }
+
+    /* Stats */
+    .stats-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-bottom: 20px; }
+    .stat-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 20px;
+      text-align: center;
+    }
+    .stat-num  { font-size: 2.2rem; font-weight: 700; font-family: 'DM Mono', monospace; color: var(--accent); }
+    .stat-label { font-size: .8rem; color: var(--ink3); margin-top: 4px; }
+
+    /* Form grid */
+    .form-row { display: flex; gap: 14px; }
+    .form-row .field { flex: 1; }
+
+    /* ── TABLE ───────────────────────────────────────────────── */
+    .table-wrap { overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; font-size: .87rem; }
+    thead th {
+      background: var(--bg);
+      padding: 10px 14px;
+      text-align: left;
+      font-size: .75rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .06em;
+      color: var(--ink2);
+      border-bottom: 1px solid var(--border);
+    }
+    td { padding: 12px 14px; border-bottom: 1px solid #f0ede6; }
+    tr:last-child td { border-bottom: none; }
+    tr:hover td { background: #fafaf7; }
+    .empty td { text-align: center; padding: 28px; color: var(--ink3); font-size: .88rem; }
+
+    /* Badges */
+    .badge {
+      display: inline-block; padding: 2px 9px;
+      border-radius: 20px; font-size: .75rem; font-weight: 600;
+      font-family: 'DM Mono', monospace;
+    }
+    .badge-green { background: #d8f3dc; color: #1b4332; }
+    .badge-blue  { background: #dbeafe; color: #1e40af; }
+    .badge-gray  { background: #f0ede6; color: var(--ink2); }
+
+    /* ── SEARCH ──────────────────────────────────────────────── */
+    .toolbar { display: flex; gap: 10px; align-items: center; margin-bottom: 14px; }
+    .toolbar input { flex: 1; }
+
+    /* ── TOAST ───────────────────────────────────────────────── */
+    #toast {
+      position: fixed; bottom: 24px; right: 24px;
+      padding: 12px 18px;
+      border-radius: 9px;
+      font-size: .87rem; font-weight: 500;
+      background: var(--ink); color: #fff;
+      border-left: 4px solid var(--accent);
+      box-shadow: 0 6px 24px rgba(0,0,0,.18);
+      opacity: 0; transform: translateY(8px);
+      transition: opacity .25s, transform .25s;
+      z-index: 9999; max-width: 300px;
+      pointer-events: none;
+    }
+    #toast.show    { opacity: 1; transform: translateY(0); }
+    #toast.success { border-left-color: var(--accent); }
+    #toast.error   { border-left-color: var(--danger); }
+    #toast.info    { border-left-color: var(--warn); }
+  </style>
+</head>
+<body>
+
+<!-- ════════════ AUTH SCREEN ════════════ -->
+<div id="authScreen">
+  <!-- LOGIN -->
+  <div id="loginCard" class="auth-card">
+    <div class="auth-brand">
+      <div class="dot">🎓</div>
+      <span>Student CMS</span>
+    </div>
+    <div class="auth-title">Welcome back</div>
+    <div class="auth-sub">Sign in to your account</div>
+
+    <div class="field">
+      <label>Username</label>
+      <input id="loginUser" placeholder="Enter username" />
+    </div>
+    <div class="field">
+      <label>Password</label>
+      <input id="loginPass" type="password" placeholder="Enter password" />
+    </div>
+    <button class="btn btn-primary btn-full" onclick="doLogin()">Sign In</button>
+
+    <div class="switch-link">
+      No account? <button class="btn btn-link" onclick="showRegister()">Register here</button>
+    </div>
+  </div>
+
+  <!-- REGISTER -->
+  <div id="registerCard" class="auth-card hidden">
+    <div class="auth-brand">
+      <div class="dot">🎓</div>
+      <span>Student CMS</span>
+    </div>
+    <div class="auth-title">Create account</div>
+    <div class="auth-sub">Register to get started</div>
+
+    <div class="field">
+      <label>Username</label>
+      <input id="regUser" placeholder="Choose a username" />
+    </div>
+    <div class="field">
+      <label>Password</label>
+      <input id="regPass" type="password" placeholder="At least 6 characters" />
+    </div>
+    <button class="btn btn-primary btn-full" onclick="doRegister()">Create Account</button>
+
+    <div class="switch-link">
+      Already have an account? <button class="btn btn-link" onclick="showLogin()">Sign in</button>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════ MAIN APP ════════════ -->
+<div id="appScreen" class="hidden">
+  <!-- Sidebar -->
+  <nav class="sidebar">
+    <div class="sidebar-brand">
+      <div class="dot">🎓</div>
+      <span>Student CMS</span>
+    </div>
+
+    <div class="nav-section">Menu</div>
+    <div class="nav-item active" onclick="showPage('dashboard',this)"><span class="icon">📊</span> Dashboard</div>
+    <div class="nav-item" onclick="showPage('students',this)"><span class="icon">👤</span> Students</div>
+    <div class="nav-item" onclick="showPage('addStudent',this)"><span class="icon">➕</span> Add Student</div>
+    <div class="nav-item" onclick="showPage('courses',this)"><span class="icon">📚</span> Courses</div>
+    <div class="nav-item" onclick="showPage('addCourse',this)"><span class="icon">➕</span> Add Course</div>
+    <div class="nav-item" onclick="showPage('enroll',this)"><span class="icon">📝</span> Register Course</div>
+
+    <div class="sidebar-footer">
+      <div class="sidebar-user">Logged in as<strong id="currentUser">—</strong></div>
+      <button class="btn btn-ghost" style="width:100%;font-size:.82rem;padding:8px" onclick="logout()">Logout</button>
+    </div>
+  </nav>
+
+  <!-- Content -->
+  <main class="main">
+
+    <!-- DASHBOARD -->
+    <div id="page-dashboard" class="page active">
+      <div class="page-header">
+        <h2>Dashboard</h2>
+        <p>Overview of your system</p>
+      </div>
+      <div class="stats-grid">
+        <div class="stat-card"><div class="stat-num" id="statS">—</div><div class="stat-label">Students</div></div>
+        <div class="stat-card"><div class="stat-num" id="statC">—</div><div class="stat-label">Courses</div></div>
+        <div class="stat-card"><div class="stat-num" id="statE">—</div><div class="stat-label">Enrollments</div></div>
+      </div>
+      <div class="card">
+        <div class="card-title">Recent Students</div>
+        <div class="table-wrap">
+          <table><thead><tr><th>Name</th><th>Email</th><th>Phone</th></tr></thead>
+          <tbody id="dashStudents"></tbody></table>
+        </div>
+      </div>
+    </div>
+
+    <!-- STUDENTS -->
+    <div id="page-students" class="page">
+      <div class="page-header"><h2>All Students</h2><p>View, search and manage students</p></div>
+      <div class="card">
+        <div class="toolbar">
+          <input id="studentSearch" placeholder="Search by name or email…" oninput="filterStudents()" />
+        </div>
+        <div class="table-wrap">
+          <table><thead><tr><th>ID</th><th>Name</th><th>Email</th><th>Phone</th><th>Action</th></tr></thead>
+          <tbody id="studentTable"></tbody></table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ADD STUDENT -->
+    <div id="page-addStudent" class="page">
+      <div class="page-header"><h2>Add Student</h2><p>Register a new student</p></div>
+      <div class="card" style="max-width:480px">
+        <div class="field"><label>Full Name</label><input id="sName" placeholder="e.g. Arun Kumar" /></div>
+        <div class="field"><label>Email Address</label><input id="sEmail" type="email" placeholder="e.g. arun@college.edu" /></div>
+        <div class="field"><label>Phone Number</label><input id="sPhone" placeholder="7–15 digit number" /></div>
+        <button class="btn btn-primary" onclick="addStudent()">Add Student</button>
+      </div>
+    </div>
+
+    <!-- COURSES -->
+    <div id="page-courses" class="page">
+      <div class="page-header"><h2>All Courses</h2><p>Manage available courses</p></div>
+      <div class="card">
+        <div class="table-wrap">
+          <table><thead><tr><th>ID</th><th>Title</th><th>Description</th><th>Credits</th><th>Action</th></tr></thead>
+          <tbody id="courseTable"></tbody></table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ADD COURSE -->
+    <div id="page-addCourse" class="page">
+      <div class="page-header"><h2>Add Course</h2><p>Create a new course</p></div>
+      <div class="card" style="max-width:480px">
+        <div class="field"><label>Course Title</label><input id="cTitle" placeholder="e.g. Java Programming" /></div>
+        <div class="field"><label>Description</label><input id="cDesc" placeholder="Brief description" /></div>
+        <div class="field"><label>Credits</label><input id="cCredits" type="number" min="1" placeholder="e.g. 3" /></div>
+        <button class="btn btn-primary" onclick="addCourse()">Add Course</button>
+      </div>
+    </div>
+
+    <!-- ENROLL -->
+    <div id="page-enroll" class="page">
+      <div class="page-header"><h2>Register Course</h2><p>Enroll a student into a course</p></div>
+      <div class="card" style="max-width:480px">
+        <div class="field"><label>Select Student</label><select id="enrollStudent"><option value="">— Choose student —</option></select></div>
+        <div class="field"><label>Select Course</label><select id="enrollCourse"><option value="">— Choose course —</option></select></div>
+        <button class="btn btn-primary" onclick="doEnroll()">Enroll Student</button>
+      </div>
+      <div class="card">
+        <div class="card-title">All Enrollments</div>
+        <div class="table-wrap">
+          <table><thead><tr><th>ID</th><th>Student</th><th>Course</th><th>Date</th><th>Action</th></tr></thead>
+          <tbody id="enrollTable"></tbody></table>
+        </div>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<div id="toast"></div>
+
+<script>
+  // ── CONFIG ────────────────────────────────────────────────────────────────────
+  // Base URL for all API calls.
+  // Because index.html is served BY Spring Boot from /static/, we use a relative
+  // path — no CORS issues at all when running via: mvn spring-boot:run
+  const BASE = '/api';
+
+  let loggedInUser = '';   // store username after login
+  let allStudents  = [];   // local cache for search filtering
+
+  // ── HELPERS ───────────────────────────────────────────────────────────────────
+
+  // Simple fetch wrapper — always sends JSON, returns parsed response
+ async function api(method, path, body) {
+  const options = {
+    method,
+    headers: { 'Content-Type': 'application/json' }
+  };
+  if (body) options.body = JSON.stringify(body);
+
+  const response = await fetch(BASE + path, options);
+  const text = await response.text();
+
+  // ✅ Safe parse - plain text ஆ இருந்தாலும் work ஆகும்
+  let data;
+  try {
+    data = text ? JSON.parse(text) : {};
+  } catch {
+    data = { message: text }; // plain text → object ஆ wrap பண்ணும்
+  }
+
+  if (!response.ok) {
+    const msg = typeof data === 'object' && data.message
+      ? data.message
+      : (typeof data === 'object' ? Object.values(data).join(', ') : text);
+    throw new Error(msg);
+  }
+
+  return data;
+}
+
+  // Show a temporary notification at the bottom-right
+  function toast(message, type = 'success') {
+    const el = document.getElementById('toast');
+    el.textContent = message;
+    el.className   = 'show ' + type;
+    setTimeout(() => { el.className = ''; }, 3000);
+  }
+
+  // ── AUTH ──────────────────────────────────────────────────────────────────────
+  function showRegister() {
+    document.getElementById('loginCard').classList.add('hidden');
+    document.getElementById('registerCard').classList.remove('hidden');
+  }
+  function showLogin() {
+    document.getElementById('registerCard').classList.add('hidden');
+    document.getElementById('loginCard').classList.remove('hidden');
+  }
+
+  async function doRegister() {
+    const username = document.getElementById('regUser').value.trim();
+    const password = document.getElementById('regPass').value.trim();
+    if (!username || !password) { toast('Please fill in both fields', 'error'); return; }
+    try {
+      // POST /api/auth/register  →  body: { username, password }
+      await api('POST', '/auth/register', { username, password });
+      toast('Account created! Please sign in.', 'success');
+      showLogin();
+    } catch (e) { toast(e.message, 'error'); }
+  }
+
+  async function doLogin() {
+    const username = document.getElementById('loginUser').value.trim();
+    const password = document.getElementById('loginPass').value.trim();
+    if (!username || !password) { toast('Please fill in both fields', 'error'); return; }
+    try {
+      // POST /api/auth/login  →  body: { username, password }
+      // Backend checks BCrypt hash and returns "Login successful" or 401
+      await api('POST', '/auth/login', { username, password });
+      loggedInUser = username;
+      document.getElementById('currentUser').textContent = username;
+      document.getElementById('authScreen').classList.add('hidden');
+      document.getElementById('appScreen').classList.remove('hidden');
+      loadDashboard();
+    } catch (e) { toast('Invalid username or password', 'error'); }
+  }
+
+  function logout() {
+    loggedInUser = '';
+    document.getElementById('appScreen').classList.add('hidden');
+    document.getElementById('authScreen').classList.remove('hidden');
+    showLogin();
+    toast('Logged out', 'info');
+  }
+
+  // ── NAVIGATION ────────────────────────────────────────────────────────────────
+  function showPage(name, navEl) {
+    // Hide all pages, deactivate all nav items
+    document.querySelectorAll('.page').forEach(p  => p.classList.remove('active'));
+    document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+
+    document.getElementById('page-' + name).classList.add('active');
+    if (navEl) navEl.classList.add('active');
+
+    // Load fresh data whenever a page becomes visible
+    if (name === 'dashboard') loadDashboard();
+    if (name === 'students')  loadStudents();
+    if (name === 'courses')   loadCourses();
+    if (name === 'enroll')    loadEnrollPage();
+  }
+
+  // ── DASHBOARD ─────────────────────────────────────────────────────────────────
+  async function loadDashboard() {
+    try {
+      // Run all three requests at the same time using Promise.all
+      const [students, courses, enrollments] = await Promise.all([
+        api('GET', '/students'),
+        api('GET', '/courses'),
+        api('GET', '/enrollments')
+      ]);
+
+      document.getElementById('statS').textContent = students.length;
+      document.getElementById('statC').textContent = courses.length;
+      document.getElementById('statE').textContent = enrollments.length;
+
+      // Show the 5 most recently added students
+      const tbody = document.getElementById('dashStudents');
+      const recent = students.slice(-5).reverse();
+      tbody.innerHTML = recent.length
+        ? recent.map(s => `<tr>
+            <td>${s.name}</td>
+            <td>${s.email}</td>
+            <td>${s.phone || '—'}</td>
+          </tr>`).join('')
+        : '<tr class="empty"><td colspan="3">No students added yet</td></tr>';
+
+    } catch (e) { toast(e.message, 'error'); }
+  }
+
+  // ── STUDENTS ──────────────────────────────────────────────────────────────────
+  async function loadStudents() {
+    try {
+      // GET /api/students → returns List<Student> as JSON array
+      allStudents = await api('GET', '/students');
+      renderStudentTable(allStudents);
+    } catch (e) { toast(e.message, 'error'); }
+  }
+
+  function renderStudentTable(data) {
+    const tbody = document.getElementById('studentTable');
+    tbody.innerHTML = data.length
+      ? data.map(s => `<tr>
+          <td><span class="badge badge-gray">#${s.id}</span></td>
+          <td>${s.name}</td>
+          <td>${s.email}</td>
+          <td>${s.phone || '—'}</td>
+          <td><button class="btn btn-danger" onclick="deleteStudent(${s.id})">Delete</button></td>
+        </tr>`).join('')
+      : '<tr class="empty"><td colspan="5">No students found</td></tr>';
+  }
+
+  function filterStudents() {
+    const query = document.getElementById('studentSearch').value.toLowerCase();
+    renderStudentTable(
+      allStudents.filter(s =>
+        s.name.toLowerCase().includes(query) || s.email.toLowerCase().includes(query)
+      )
+    );
+  }
+
+  async function addStudent() {
+    const name  = document.getElementById('sName').value.trim();
+    const email = document.getElementById('sEmail').value.trim();
+    const phone = document.getElementById('sPhone').value.trim();
+    try {
+      // POST /api/students  body: { name, email, phone }
+      await api('POST', '/students', { name, email, phone });
+      toast('Student added successfully!', 'success');
+      // Clear the form
+      document.getElementById('sName').value  = '';
+      document.getElementById('sEmail').value = '';
+      document.getElementById('sPhone').value = '';
+      // Go back to students list
+      showPage('students', document.querySelectorAll('.nav-item')[2]);
+    } catch (e) { toast(e.message, 'error'); }
+  }
+
+  async function deleteStudent(id) {
+    if (!confirm('Delete this student?')) return;
+    try {
+      // DELETE /api/students/1
+      await api('DELETE', '/students/' + id);
+      toast('Student deleted', 'success');
+      loadStudents();
+    } catch (e) { toast(e.message, 'error'); }
+  }
+
+  // ── COURSES ───────────────────────────────────────────────────────────────────
+  async function loadCourses() {
+    try {
+      const courses = await api('GET', '/courses');
+      const tbody   = document.getElementById('courseTable');
+      tbody.innerHTML = courses.length
+        ? courses.map(c => `<tr>
+            <td><span class="badge badge-blue">#${c.id}</span></td>
+            <td>${c.title}</td>
+            <td>${c.description || '—'}</td>
+            <td><span class="badge badge-green">${c.credits} cr</span></td>
+            <td><button class="btn btn-danger" onclick="deleteCourse(${c.id})">Delete</button></td>
+          </tr>`).join('')
+        : '<tr class="empty"><td colspan="5">No courses found</td></tr>';
+    } catch (e) { toast(e.message, 'error'); }
+  }
+
+  async function addCourse() {
+    const title       = document.getElementById('cTitle').value.trim();
+    const description = document.getElementById('cDesc').value.trim();
+    const credits     = parseInt(document.getElementById('cCredits').value);
+    try {
+      await api('POST', '/courses', { title, description, credits });
+      toast('Course added successfully!', 'success');
+      document.getElementById('cTitle').value   = '';
+      document.getElementById('cDesc').value    = '';
+      document.getElementById('cCredits').value = '';
+      showPage('courses', document.querySelectorAll('.nav-item')[4]);
+    } catch (e) { toast(e.message, 'error'); }
+  }
+
+  async function deleteCourse(id) {
+    if (!confirm('Delete this course?')) return;
+    try {
+      await api('DELETE', '/courses/' + id);
+      toast('Course deleted', 'success');
+      loadCourses();
+    } catch (e) { toast(e.message, 'error'); }
+  }
+
+  // ── ENROLLMENTS ───────────────────────────────────────────────────────────────
+  async function loadEnrollPage() {
+    try {
+      const [students, courses, enrollments] = await Promise.all([
+        api('GET', '/students'),
+        api('GET', '/courses'),
+        api('GET', '/enrollments')
+      ]);
+
+      // Populate student dropdown
+      document.getElementById('enrollStudent').innerHTML =
+        '<option value="">— Choose student —</option>' +
+        students.map(s => `<option value="${s.id}">${s.name}</option>`).join('');
+
+      // Populate course dropdown
+      document.getElementById('enrollCourse').innerHTML =
+        '<option value="">— Choose course —</option>' +
+        courses.map(c => `<option value="${c.id}">${c.title} (${c.credits} cr)</option>`).join('');
+
+      // Render enrollment table
+      const tbody = document.getElementById('enrollTable');
+      tbody.innerHTML = enrollments.length
+        ? enrollments.map(e => `<tr>
+            <td><span class="badge badge-gray">#${e.id}</span></td>
+            <td>${e.student.name}</td>
+            <td>${e.course.title}</td>
+            <td>${e.enrolledDate}</td>
+            <td><button class="btn btn-danger" onclick="cancelEnroll(${e.id})">Cancel</button></td>
+          </tr>`).join('')
+        : '<tr class="empty"><td colspan="5">No enrollments yet</td></tr>';
+
+    } catch (e) { toast(e.message, 'error'); }
+  }
+
+  async function doEnroll() {
+    const studentId = document.getElementById('enrollStudent').value;
+    const courseId  = document.getElementById('enrollCourse').value;
+    if (!studentId || !courseId) { toast('Please select both student and course', 'error'); return; }
+    try {
+      // POST /api/enrollments/student/1/course/2
+      await api('POST', `/enrollments/student/${studentId}/course/${courseId}`);
+      toast('Student enrolled successfully!', 'success');
+      loadEnrollPage();
+    } catch (e) { toast(e.message, 'error'); }
+  }
+
+  async function cancelEnroll(id) {
+    if (!confirm('Cancel this enrollment?')) return;
+    try {
+      await api('DELETE', '/enrollments/' + id);
+      toast('Enrollment cancelled', 'success');
+      loadEnrollPage();
+    } catch (e) { toast(e.message, 'error'); }
+  }
+
+  // ── KEYBOARD SHORTCUTS ────────────────────────────────────────────────────────
+  document.addEventListener('keydown', e => {
+    if (e.key !== 'Enter') return;
+    const id = document.activeElement?.id;
+    if (id === 'loginUser' || id === 'loginPass')   doLogin();
+    if (id === 'regUser'   || id === 'regPass')     doRegister();
+  });
+</script>
+</body>
+</html>
